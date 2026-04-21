@@ -3,6 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertCircle, Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { 
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider 
+} from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,35 +19,57 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('accessToken')) {
-        navigate('/dashboard', { replace: true });
-    }
+    const checkAuth = () => {
+        if (localStorage.getItem('accessToken') || auth.currentUser) {
+            navigate('/dashboard', { replace: true });
+        }
+    };
+    checkAuth();
   }, [navigate]);
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError('');
-    setTimeout(() => {
-         const mockUser = {
-            id: 'google_user_123',
-            email: 'user@gmail.com',
-            first_name: 'Sumit',
-            last_name: 'Rao',
+    const provider = new GoogleAuthProvider();
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Check if user exists in Firestore, if not create a profile
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        const userData = {
+            id: user.uid,
+            email: user.email,
+            first_name: user.displayName?.split(' ')[0] || 'User',
+            last_name: user.displayName?.split(' ').slice(1).join(' ') || '',
             role: 'user',
-            phone_number: '', 
-            picture: 'https://lh3.googleusercontent.com/a/default-user=s96-c' 
+            picture: user.photoURL
         };
-        localStorage.setItem('accessToken', 'mock_google_access_token');
-        localStorage.setItem('refreshToken', 'mock_google_refresh_token');
-        localStorage.setItem('user', JSON.stringify(mockUser));
 
-        if (!mockUser.phone_number) {
-            navigate('/complete-profile');
-        } else {
-            navigate('/dashboard');
+        if (!userDoc.exists()) {
+            await setDoc(userDocRef, {
+                ...userData,
+                createdAt: serverTimestamp(),
+            });
         }
+
+        const idToken = await user.getIdToken();
+        localStorage.setItem('accessToken', idToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        navigate('/dashboard');
+    } catch (err: any) {
+        console.error(err);
+        if (err.code === 'auth/network-request-failed') {
+            setError('Network error: Please check your internet connection or disable ad-blockers that might be blocking Firebase.');
+        } else {
+            setError(err.message || 'Google login failed');
+        }
+    } finally {
         setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,25 +77,35 @@ const Login: React.FC = () => {
     setError('');
     setIsLoading(true);
     
-    setTimeout(() => {
-        if (email && password.length >= 6) {
-             const mockUser = {
-                id: '1',
-                email: email,
-                first_name: 'Demo',
-                last_name: 'User',
-                role: 'admin',
-                phone_number: '9876543210' 
-            };
-            localStorage.setItem('accessToken', 'mock_access_token_12345');
-            localStorage.setItem('refreshToken', 'mock_refresh_token_12345');
-            localStorage.setItem('user', JSON.stringify(mockUser));
-            navigate('/dashboard');
+    try {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+        
+        // Fetch user data from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.exists() ? userDoc.data() : {
+            id: user.uid,
+            email: user.email,
+            first_name: 'User',
+            last_name: '',
+            role: 'user'
+        };
+
+        const idToken = await user.getIdToken();
+        localStorage.setItem('accessToken', idToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        navigate('/dashboard');
+    } catch (err: any) {
+        console.error(err);
+        if (err.code === 'auth/network-request-failed') {
+            setError('Network error: Firebase servers are unreachable. Try disabling ad-blockers or check your connection.');
         } else {
-            setError('Invalid email or password (password must be 6+ chars)');
+            setError(err.message || 'Invalid email or password');
         }
+    } finally {
         setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

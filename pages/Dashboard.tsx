@@ -6,6 +6,8 @@ import {
   Plus, ChevronRight, Star, Clock, Menu, X 
 } from 'lucide-react';
 import { FEATURED_APPS } from '../constants';
+import { auth } from '../lib/firebase';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -13,19 +15,42 @@ const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      navigate('/login');
-    }
+    // Listen for auth changes
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser) {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            } else {
+                // Fallback to minimal data if localStorage is cleared but auth persists
+                setUser({
+                    id: firebaseUser.uid,
+                    email: firebaseUser.email,
+                    first_name: firebaseUser.displayName?.split(' ')[0] || 'User',
+                    last_name: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+                });
+            }
+        } else {
+            // No user is signed in, clear session and redirect
+            localStorage.removeItem('user');
+            localStorage.removeItem('accessToken');
+            navigate('/login');
+        }
+    });
+
+    return () => unsubscribe();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+        await signOut(auth);
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        navigate('/login');
+    } catch (err) {
+        console.error("Logout error:", err);
+    }
   };
 
   if (!user) return null;

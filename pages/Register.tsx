@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, User, Mail, Lock, Phone, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,9 +20,12 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('accessToken')) {
-        navigate('/dashboard', { replace: true });
-    }
+    const checkAuth = () => {
+        if (localStorage.getItem('accessToken') || auth.currentUser) {
+            navigate('/dashboard', { replace: true });
+        }
+    };
+    checkAuth();
   }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,26 +42,48 @@ const Register: React.FC = () => {
         return;
     }
 
+    if (formData.password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+    }
+
     setIsLoading(true);
     
-    setTimeout(() => {
+    try {
+        const result = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = result.user;
+        
         const nameParts = formData.name.split(' ');
-        const mockUser = {
-            id: 'new_user_101',
+        const userData = {
+            id: user.uid,
             email: formData.email,
             first_name: nameParts[0],
             last_name: nameParts.slice(1).join(' ') || '',
-            role: 'admin',
+            role: 'user',
             phone_number: formData.phone
         };
 
-        localStorage.setItem('accessToken', 'mock_access_token_new_user');
-        localStorage.setItem('refreshToken', 'mock_refresh_token_new_user');
-        localStorage.setItem('user', JSON.stringify(mockUser));
+        // Save profile to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+            ...userData,
+            createdAt: serverTimestamp(),
+        });
+
+        const idToken = await user.getIdToken();
+        localStorage.setItem('accessToken', idToken);
+        localStorage.setItem('user', JSON.stringify(userData));
 
         navigate('/dashboard');
+    } catch (err: any) {
+        console.error(err);
+        if (err.code === 'auth/network-request-failed') {
+            setError('Network error: Firebase servers are unreachable. Please disable ad-blockers or check your internet.');
+        } else {
+            setError(err.message || 'Registration failed');
+        }
+    } finally {
         setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

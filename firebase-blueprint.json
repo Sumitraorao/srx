@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "users": {
+        "title": "User Profile",
+        "description": "Public and private user profile information",
+        "type": "object",
+        "properties": {
+            "email": { "type": "string" },
+            "firstName": { "type": "string" },
+            "lastName": { "type": "string" },
+            "phoneNumber": { "type": "string" },
+            "role": { "type": "string", "enum": ["user", "admin"] },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["email", "firstName", "lastName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+        "schema": "users",
+        "description": "User profile documents"
+    }
+  }
+}

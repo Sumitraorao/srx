@@ -244,8 +244,8 @@ const AiChat: React.FC = () => {
     setIsTyping(true);
     
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        let modelName = 'gemini-2.5-flash'; // Default for text
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        let modelName = 'gemini-3-flash-preview'; // Default for text
         let isImageRequest = forceImageMode;
 
         // Enhanced Intent Detection for Image Generation (Includes Hinglish/Hindi)

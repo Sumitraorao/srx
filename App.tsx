@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -71,7 +70,6 @@ function App() {
         </Routes>
       </main>
       {(!isAuthPage && !isChatPage && !isDashboard) && <Footer />}
-      <Analytics />
     </div>
   );
 }
