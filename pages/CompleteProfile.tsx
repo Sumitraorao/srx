@@ -2,13 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { useAuth } from '../lib/AuthContext';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../lib/firebase';
+import { handleFirestoreError } from '../lib/firebaseUtils';
 
 const CompleteProfile: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const { user, loading } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   
   // OTP States
   const [showOtp, setShowOtp] = useState(false);
@@ -16,31 +21,38 @@ const CompleteProfile: React.FC = () => {
   const [otpTimer, setOtpTimer] = useState(60);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-        setUser(JSON.parse(storedUser));
-    } else {
-        navigate('/login');
+    if (!loading) {
+        if (!user) {
+            navigate('/login');
+        } else if (user.phone_number) {
+            // Profile is already complete
+            navigate('/dashboard', { replace: true });
+        }
     }
-  }, [navigate]);
+  }, [loading, user, navigate]);
 
   useEffect(() => {
-      let interval: ReturnType<typeof setInterval>;
-      if (showOtp && otpTimer > 0) {
-          interval = setInterval(() => {
-              setOtpTimer((prev) => prev - 1);
-          }, 1000);
-      }
-      return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval>;
+    if (showOtp && otpTimer > 0) {
+        interval = setInterval(() => {
+            setOtpTimer((prev) => prev - 1);
+        }, 1000);
+    }
+    return () => clearInterval(interval);
   }, [showOtp, otpTimer]);
 
   const handleCreateAccount = (e: React.FormEvent) => {
       e.preventDefault();
       if (!phoneNumber) return;
+      setError('');
       setIsLoading(true);
+      // Simulate OTP send
       setTimeout(() => {
-          setIsLoading(false);
-          setShowOtp(true);
+          setIsLoading(true);
+          setTimeout(() => {
+            setIsLoading(false);
+            setShowOtp(true);
+          }, 500);
       }, 1000);
   };
 
@@ -58,101 +70,128 @@ const CompleteProfile: React.FC = () => {
 
   const handleVerifyOtp = async () => {
       setIsLoading(true);
+      setError('');
       
-      setTimeout(() => {
-          const updatedUser = { ...user, phone_number: phoneNumber };
-          localStorage.setItem('user', JSON.stringify(updatedUser));
+      try {
+          const userRef = doc(db, 'users', auth.currentUser!.uid);
+          await updateDoc(userRef, {
+              phone_number: phoneNumber,
+              updatedAt: serverTimestamp()
+          });
           navigate('/dashboard');
+      } catch (err: any) {
+          console.error(err);
+          try {
+              handleFirestoreError(err, 'update', `users/${auth.currentUser?.uid}`, auth);
+          } catch (formattedErr: any) {
+              setError(formattedErr.message || "Failed to update profile");
+          }
+      } finally {
           setIsLoading(false);
-      }, 1500);
+      }
   };
 
-  if (!user) return null;
+  if (loading || !user) return (
+    <div className="min-h-screen bg-white flex items-center justify-center text-slate-900">
+        <Loader2 className="animate-spin h-8 w-8 text-slate-400" />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-[#0f172a] font-sans selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-white font-sans selection:bg-emerald-100 selection:text-emerald-900">
        
-       {/* Dark Green/Slate Background */}
+       {/* Soft Background Decorative Elements */}
        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-emerald-900/20 rounded-full blur-[120px] animate-blob"></div>
-          <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-slate-800/40 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+          <div className="absolute top-[-5%] left-[-5%] w-[400px] h-[400px] bg-slate-50 rounded-full blur-[80px]"></div>
+          <div className="absolute bottom-[-5%] right-[-5%] w-[400px] h-[400px] bg-slate-50 rounded-full blur-[80px]"></div>
        </div>
 
        <motion.div 
-         initial={{ opacity: 0, scale: 0.95 }}
-         animate={{ opacity: 1, scale: 1 }}
+         initial={{ opacity: 0, y: 10 }}
+         animate={{ opacity: 1, y: 0 }}
+         transition={{ duration: 0.4 }}
          className="relative z-10 w-full max-w-lg px-6"
        >
            {!showOtp ? (
-               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden">
+               <div className="bg-white border border-slate-100 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden">
                    
                    {/* Profile Header */}
-                   <div className="p-8 border-b border-white/10 bg-black/20 flex flex-col items-center text-center">
-                       <div className="relative mb-4">
+                   <div className="p-10 border-b border-slate-50 bg-slate-50/50 flex flex-col items-center text-center">
+                       <div className="relative mb-6">
                            {user.picture ? (
-                               <img src={user.picture} alt="Profile" className="w-20 h-20 rounded-full border-4 border-emerald-500/30 shadow-lg" />
+                               <img 
+                                 src={user.picture} 
+                                 alt="Profile" 
+                                 className="w-24 h-24 rounded-3xl object-cover border-4 border-white shadow-xl rotate-3 hover:rotate-0 transition-all duration-500" 
+                                 referrerPolicy="no-referrer"
+                               />
                            ) : (
-                               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-white/10">
+                               <div className="w-24 h-24 rounded-3xl bg-slate-900 flex items-center justify-center text-white text-4xl font-black shadow-xl rotate-3">
                                    {user.first_name?.[0]}
                                </div>
                            )}
-                           <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-2 border-[#0f172a] rounded-full"></div>
+                           <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 border-4 border-white rounded-2xl shadow-lg animate-pulse"></div>
                        </div>
-                       <h2 className="text-2xl font-bold text-white">Welcome, {user.first_name}!</h2>
-                       <p className="text-slate-400 text-sm mt-1">Let's secure your account to get started.</p>
+                       <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Verified Identity</h2>
+                       <p className="text-slate-400 text-sm font-medium mt-2">Welcome, {user.first_name}. Let's secure your portal.</p>
                    </div>
 
-                   <div className="p-8">
-                       <form onSubmit={handleCreateAccount} className="space-y-6">
+                   <div className="p-10 sm:p-12">
+                       <form onSubmit={handleCreateAccount} className="space-y-8">
+                           {error && (
+                               <div className="rounded-2xl bg-red-50 border border-red-100 p-5 flex items-center gap-4">
+                                   <AlertCircle className="h-6 w-6 text-red-500 shrink-0" />
+                                   <p className="text-sm font-bold text-red-800 leading-tight">{error}</p>
+                               </div>
+                           )}
                            
                            <div>
-                               <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Mobile Number</label>
-                               <div className="flex">
-                                   <div className="flex-shrink-0 inline-flex items-center px-4 bg-slate-900/50 border border-slate-700 text-slate-300 rounded-l-xl font-medium border-r-0">
-                                       <span className="mr-2 text-lg">🇮🇳</span> +91
+                               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Mobile Access Key</label>
+                               <div className="flex gap-3">
+                                   <div className="flex-shrink-0 inline-flex items-center px-5 bg-slate-50 border border-slate-100 text-slate-900 rounded-2xl font-black text-sm">
+                                       +91
                                    </div>
                                    <input 
                                       type="tel" 
                                       required
                                       value={phoneNumber}
                                       onChange={(e) => setPhoneNumber(e.target.value)}
-                                      className="block w-full bg-slate-900/50 border border-slate-700 text-white rounded-r-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder-slate-600 text-lg tracking-wide" 
-                                      placeholder="98765 43210" 
+                                      className="block w-full bg-slate-50 border border-transparent text-slate-900 rounded-2xl px-6 py-5 focus:outline-none focus:ring-4 focus:ring-slate-100 focus:bg-white focus:border-slate-200 transition-all placeholder-slate-300 font-bold text-lg tracking-widest shadow-inner" 
+                                      placeholder="••••• •••••" 
                                    />
                                </div>
-                               <p className="mt-3 text-xs text-slate-500 flex items-center">
-                                   <ShieldCheck size={12} className="mr-1 text-emerald-500" />
-                                   We'll send a secure OTP to verify this number.
+                               <p className="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center">
+                                   <ShieldCheck size={14} className="mr-2 text-emerald-500" />
+                                   Instant cryptographic verification sent via SMS.
                                </p>
                            </div>
 
                            <button 
                              type="submit" 
                              disabled={isLoading}
-                             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/50 transition-all transform hover:-translate-y-1 flex items-center justify-center"
+                             className="w-full bg-slate-900 hover:bg-black text-white font-black py-5 rounded-2xl shadow-2xl shadow-slate-200 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center uppercase tracking-[0.15em] text-sm"
                            >
-                               {isLoading ? <Loader2 className="animate-spin" /> : 'Send Verification Code'}
+                               {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Request Secure Access'}
                            </button>
                            
                            <div className="text-center pt-2">
-                               <button type="button" onClick={() => navigate('/login')} className="text-sm text-slate-400 hover:text-white transition-colors">
-                                   Not you? <span className="underline">Sign in with a different account</span>
+                               <button type="button" onClick={() => navigate('/login')} className="text-xs font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">
+                                   Different user? <span className="text-slate-900 underline decoration-slate-200 underline-offset-4">Reset Session</span>
                                </button>
                            </div>
                        </form>
                    </div>
                </div>
            ) : (
-               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden p-8 sm:p-10">
-                   <div className="text-center mb-8">
-                       <h2 className="text-2xl font-bold text-white mb-2">Verify Identity</h2>
-                       <p className="text-slate-400 text-sm">
-                           Enter the code sent to <span className="text-emerald-400 font-mono">+91 {phoneNumber}</span>
+               <div className="bg-white border border-slate-100 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden p-10 sm:p-14">
+                   <div className="text-center mb-10">
+                       <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tighter">Enter Key</h2>
+                       <p className="text-slate-400 text-sm font-medium">
+                           Input the 7-digit secure code sent to <span className="text-slate-900 font-black tracking-tight">+91 {phoneNumber}</span>
                        </p>
                    </div>
 
-                   <div className="flex justify-between gap-2 mb-8">
+                   <div className="flex justify-between gap-2 mb-10">
                        {otp.map((digit, idx) => (
                            <input
                              key={idx}
@@ -161,29 +200,29 @@ const CompleteProfile: React.FC = () => {
                              maxLength={1}
                              value={digit}
                              onChange={(e) => handleOtpChange(idx, e.target.value)}
-                             className="w-10 h-12 sm:w-12 sm:h-14 text-center bg-slate-900/50 border border-slate-700 rounded-lg text-white text-xl font-bold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all shadow-inner"
+                             className="w-10 h-14 text-center bg-slate-50 border border-transparent rounded-2xl text-slate-900 text-2xl font-black focus:ring-4 focus:ring-slate-100 focus:bg-white focus:border-slate-200 outline-none transition-all shadow-inner"
                            />
                        ))}
                    </div>
 
-                   <div className="flex items-center justify-center text-sm text-slate-400 mb-8">
+                   <div className="flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-10">
                        {otpTimer > 0 ? (
-                           <span>Resend code in <span className="text-white font-mono">{otpTimer}s</span></span>
+                           <span>Auth expires in <span className="text-slate-900">{otpTimer}s</span></span>
                        ) : (
-                           <button onClick={() => setOtpTimer(60)} className="text-emerald-400 hover:text-emerald-300 font-bold">Resend Code</button>
+                           <button onClick={() => setOtpTimer(60)} className="text-red-500 hover:text-red-600 transition-colors">Request New Code</button>
                        )}
                    </div>
 
                    <div className="flex gap-4">
-                       <button onClick={() => setShowOtp(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold border border-white/10 transition-colors">
+                       <button onClick={() => setShowOtp(false)} className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-900 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-colors border border-slate-100 shadow-sm">
                            Back
                        </button>
                        <button 
                          onClick={handleVerifyOtp}
                          disabled={isLoading || otp.join('').length < 7}
-                         className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                         className="flex-[2] bg-slate-900 hover:bg-black text-white font-black py-4 rounded-2xl shadow-2xl shadow-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center uppercase tracking-[0.15em] text-xs"
                        >
-                           {isLoading ? <Loader2 className="animate-spin" /> : 'Confirm'}
+                           {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Confirm Identity'}
                        </button>
                    </div>
                </div>

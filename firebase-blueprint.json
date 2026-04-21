@@ -2,23 +2,41 @@
   "entities": {
     "users": {
         "title": "User Profile",
-        "description": "Public and private user profile information",
+        "description": "User profile information including role and contact details",
         "type": "object",
         "properties": {
             "email": { "type": "string" },
-            "firstName": { "type": "string" },
-            "lastName": { "type": "string" },
-            "phoneNumber": { "type": "string" },
+            "first_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "phone_number": { "type": "string" },
             "role": { "type": "string", "enum": ["user", "admin"] },
-            "createdAt": { "type": "string", "format": "date-time" }
+            "createdAt": { "type": "string", "format": "date-time" },
+            "updatedAt": { "type": "string", "format": "date-time" }
         },
-        "required": ["email", "firstName", "lastName"]
+        "required": ["email", "first_name", "last_name"]
+    },
+    "service_requests": {
+        "title": "Service Request",
+        "description": "User's requirements for a specific service",
+        "type": "object",
+        "properties": {
+            "userId": { "type": "string" },
+            "serviceId": { "type": "string" },
+            "serviceName": { "type": "string" },
+            "requirements": { "type": "string" },
+            "status": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" }
+        }
     }
   },
   "firestore": {
     "/users/{userId}": {
         "schema": "users",
         "description": "User profile documents"
+    },
+    "/service_requests/{requestId}": {
+        "schema": "service_requests",
+        "description": "Individual service inquiry or requirements"
     }
   }
 }

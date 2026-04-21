@@ -78,13 +78,13 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { 
     label: 'Resources', 
-    href: '#',
+    href: '/security',
     hasMenu: true,
     menuType: 'dropdown',
     subItems: [
         { label: 'Security Solutions', href: '/security' },
-        { label: 'Knowledge Base', href: '#' },
-        { label: 'Blog', href: '#' }
+        { label: 'Knowledge Base', href: 'https://digitalmax.mgx.world/kb' },
+        { label: 'Blog', href: 'https://digitalmax.mgx.world/blog' }
     ]
   },
 ];
@@ -149,20 +149,20 @@ export const FOOTER_LINKS: FooterSection[] = [
     links: [
         { label: 'Mobile Apps', href: '/mobile-apps' },
         { label: 'Developer Center', href: '/developer-center' },
-        { label: 'Google Workspace Integration', href: '#' },
-        { label: 'Microsoft 365 Integration', href: '#' },
-        { label: 'Apple Watch Integration', href: '#' },
-        { label: 'Browser Extensions', href: '#' }
+        { label: 'Google Workspace', href: 'https://workspace.google.com/marketplace' },
+        { label: 'Microsoft 365', href: 'https://appsource.microsoft.com' },
+        { label: 'Apple Watch', href: 'https://www.apple.com/watch' },
+        { label: 'Browser Extensions', href: 'https://chrome.google.com/webstore' }
     ]
   },
   {
     title: 'Learn',
     links: [
-        { label: 'Training and Certification', href: '#' },
-        { label: 'Academy', href: '#' },
-        { label: 'Blog', href: '#' },
-        { label: 'Knowledge Base', href: '#' },
-        { label: 'Newsletter', href: '#' }
+        { label: 'Training and Certification', href: 'https://digitalmax.mgx.world/training' },
+        { label: 'Academy', href: 'https://digitalmax.mgx.world/academy' },
+        { label: 'Blog', href: 'https://digitalmax.mgx.world/blog' },
+        { label: 'Knowledge Base', href: 'https://digitalmax.mgx.world/kb' },
+        { label: 'Newsletter', href: 'https://digitalmax.mgx.world/newsletter' }
     ]
   },
   {
@@ -170,8 +170,8 @@ export const FOOTER_LINKS: FooterSection[] = [
     links: [
         { label: 'User Community', href: '/community' },
         { label: 'Customer Stories', href: '/customers' },
-        { label: 'Influence', href: '#' },
-        { label: 'Idea Hub', href: '#' },
+        { label: 'Influence', href: 'https://digitalmax.mgx.world/influence' },
+        { label: 'Idea Hub', href: 'https://digitalmax.mgx.world/ideas' },
         { label: 'Partners', href: '/partners' }
     ]
   },
@@ -179,11 +179,11 @@ export const FOOTER_LINKS: FooterSection[] = [
     title: 'Company',
     links: [
         { label: 'About Us', href: '/about' },
-        { label: 'Press', href: '#' },
-        { label: 'Events', href: '#' },
-        { label: 'Branding Assets', href: '#' },
+        { label: 'Press', href: 'https://digitalmax.mgx.world/press' },
+        { label: 'Events', href: 'https://digitalmax.mgx.world/events' },
+        { label: 'Branding Assets', href: 'https://digitalmax.mgx.world/branding' },
         { label: 'Security', href: '/security' },
-        { label: 'Compliance', href: '#' }
+        { label: 'Compliance', href: 'https://digitalmax.mgx.world/compliance' }
     ]
   }
 ];
@@ -247,6 +247,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
     id: 'it',
     label: 'Security & IT',
     products: [
+      { id: 'mail', name: 'Mail', description: 'Secure, ad-free business email for your team.', icon: Mail, category: 'it' },
       { id: 'vault', name: 'Vault', description: 'Online password manager for teams.', icon: Lock, category: 'it' },
       { id: 'catalyst', name: 'Catalyst', description: 'Pro-code platform to build and deploy your apps.', icon: Cloud, category: 'it' },
     ]

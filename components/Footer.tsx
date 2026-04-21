@@ -4,17 +4,11 @@ import { FOOTER_LINKS } from '../constants';
 import { Facebook, Twitter, Linkedin, Youtube, Instagram, Globe, ArrowRight, Smartphone, Code, Cloud, Monitor, Watch, Layout } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../lib/AuthContext';
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  const { user } = useAuth();
 
   const handleCtaClick = () => {
       if (user) {
@@ -73,18 +67,26 @@ const Footer: React.FC = () => {
               >
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 border-l-4 border-blue-500 pl-3">Apps & Ecosystem</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {FOOTER_LINKS[0].links.map((link, idx) => (
-                          <Link 
-                            key={idx} 
-                            to={link.href}
-                            className="flex items-center p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-blue-500/30 transition-all group"
-                          >
-                              <div className="p-2 rounded-lg bg-slate-800 text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-900/30 transition-colors mr-3">
-                                  {getIconForLink(link.label)}
-                              </div>
-                              <span className="text-sm font-medium text-slate-200 group-hover:text-white">{link.label}</span>
-                          </Link>
-                      ))}
+                      {FOOTER_LINKS[0].links.map((link, idx) => {
+                          const isExternal = link.href.startsWith('http');
+                          const Component = isExternal ? 'a' : Link;
+                          const props = isExternal 
+                            ? { href: link.href, target: "_blank", rel: "noopener noreferrer" } 
+                            : { to: link.href };
+                          
+                          return (
+                            <Component 
+                              key={idx} 
+                              {...(props as any)}
+                              className="flex items-center p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-blue-500/30 transition-all group"
+                            >
+                                <div className="p-2 rounded-lg bg-slate-800 text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-900/30 transition-colors mr-3">
+                                    {getIconForLink(link.label)}
+                                </div>
+                                <span className="text-sm font-medium text-slate-200 group-hover:text-white">{link.label}</span>
+                            </Component>
+                          );
+                      })}
                   </div>
               </motion.div>
           </div>
@@ -101,17 +103,25 @@ const Footer: React.FC = () => {
             >
               <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">{section.title}</h4>
               <ul className="space-y-4">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    <Link 
-                        to={link.href} 
-                        className="text-slate-400 hover:text-blue-400 text-sm transition-colors flex items-center group"
-                    >
-                      <span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 mr-0 group-hover:mr-2 text-blue-400">→</span>
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {section.links.map((link) => {
+                  const isExternal = link.href.startsWith('http');
+                  const Component = isExternal ? 'a' : Link;
+                  const props = isExternal 
+                    ? { href: link.href, target: "_blank", rel: "noopener noreferrer" } 
+                    : { to: link.href };
+                    
+                  return (
+                    <li key={link.label}>
+                      <Component 
+                          {...(props as any)}
+                          className="text-slate-400 hover:text-blue-400 text-sm transition-colors flex items-center group"
+                      >
+                        <span className="w-0 overflow-hidden group-hover:w-2 transition-all duration-300 mr-0 group-hover:mr-2 text-blue-400">→</span>
+                        {link.label}
+                      </Component>
+                    </li>
+                  );
+                })}
               </ul>
             </motion.div>
           ))}
@@ -129,11 +139,11 @@ const Footer: React.FC = () => {
                  </div>
              </div>
              <div className="mt-6 md:mt-0 flex space-x-6">
-                <a href="#" className="hover:text-blue-400 transition-colors"><Facebook size={20} /></a>
-                <a href="#" className="hover:text-blue-400 transition-colors"><Twitter size={20} /></a>
-                <a href="#" className="hover:text-blue-400 transition-colors"><Linkedin size={20} /></a>
-                <a href="#" className="hover:text-blue-400 transition-colors"><Youtube size={20} /></a>
-                <a href="#" className="hover:text-blue-400 transition-colors"><Instagram size={20} /></a>
+                <a href="https://facebook.com/srxhub" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors"><Facebook size={20} /></a>
+                <a href="https://twitter.com/srxhub" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors"><Twitter size={20} /></a>
+                <a href="https://linkedin.com/company/srxhub" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors"><Linkedin size={20} /></a>
+                <a href="https://youtube.com/@srxhub" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors"><Youtube size={20} /></a>
+                <a href="https://instagram.com/srxhub" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors"><Instagram size={20} /></a>
             </div>
         </div>
 

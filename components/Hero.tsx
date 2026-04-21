@@ -6,21 +6,19 @@ import { getFeaturedApps } from '../services/mockApi';
 import { FeatureApp } from '../types';
 import { getRandomImage } from '../constants';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/AuthContext';
 
 const Hero: React.FC = () => {
   const [apps, setApps] = useState<(FeatureApp & { id: string })[]>([]);
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const [heroImage, setHeroImage] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Simulate fetching data from backend
     getFeaturedApps().then(setApps);
     setHeroImage("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1200");
-
-    // Check login status
-    const token = localStorage.getItem('accessToken');
-    setIsLoggedIn(!!token);
   }, []);
 
   return (

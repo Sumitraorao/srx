@@ -5,37 +5,20 @@ import { NAV_ITEMS, ENTERPRISE_NAV_ITEMS } from '../constants';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ProductsMenu from './ProductsMenu';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../lib/AuthContext';
+import { auth } from '../lib/firebase';
+import { signOut } from 'firebase/auth';
 
 const Navbar: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuth();
   const navRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
   const isEnterprise = location.pathname === '/enterprise';
   const navItemsToRender = isEnterprise ? ENTERPRISE_NAV_ITEMS : NAV_ITEMS;
-
-  // Check authentication status on mount and route change
-  useEffect(() => {
-    const checkAuth = () => {
-      const storedUser = localStorage.getItem('user');
-      const accessToken = localStorage.getItem('accessToken');
-      
-      if (accessToken && storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          console.error("Error parsing user data", e);
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-    checkAuth();
-  }, [location]);
 
   // Close menus when route changes
   useEffect(() => {
@@ -78,12 +61,13 @@ const Navbar: React.FC = () => {
       }
   };
 
-  const handleLogout = () => {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      setUser(null);
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
       navigate('/login');
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   const handleScrollLink = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
