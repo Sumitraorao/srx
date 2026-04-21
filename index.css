@@ -2,7 +2,7 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Merriweather", ui-serif, Georgia, serif;
+  --font-display: "Outfit", sans-serif;
 
   --color-brand-red: #f0483e;
   --color-brand-dark-red: #d63a31;
@@ -24,6 +24,19 @@
   --animate-blob: blob 7s infinite;
   --animate-spin-slow: spin 15s linear infinite;
   --animate-gradient-xy: gradient-xy 15s ease infinite;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 @layer utilities {

@@ -112,13 +112,13 @@ const Navbar: React.FC = () => {
           
           {/* Logo and Desktop Nav */}
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center cursor-pointer group">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-red to-yellow-500 rounded flex items-center justify-center text-white font-bold text-xl mr-2 group-hover:opacity-90 transition-opacity">
+            <Link to="/" className="flex-shrink-0 flex items-center cursor-pointer group no-underline">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-red to-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl mr-2.5 group-hover:scale-105 transition-transform shadow-sm">
                 S
               </div>
               <div className="flex flex-col">
-                  <span className="font-bold text-2xl tracking-tighter text-gray-800 leading-none">SRXHUB</span>
-                  {isEnterprise && <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500">For Enterprise</span>}
+                  <span className="font-display font-black text-2xl tracking-tighter text-gray-900 leading-none">SRXHUB</span>
+                  {isEnterprise && <span className="text-[10px] uppercase font-bold tracking-widest text-brand-red">Enterprise Edition</span>}
               </div>
             </Link>
             

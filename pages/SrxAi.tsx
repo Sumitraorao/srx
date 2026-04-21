@@ -151,7 +151,7 @@ const SrxAi: React.FC = () => {
                       className="absolute inset-2 rounded-full bg-white shadow-2xl flex items-center justify-center overflow-hidden border-4 border-white z-10"
                    >
                        <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center relative">
-                          <span className="text-6xl font-serif font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 tracking-tight">
+                          <span className="text-6xl font-display font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 tracking-tighter">
                              SRX
                           </span>
                        </div>

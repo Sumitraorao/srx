@@ -73,8 +73,8 @@ const Products: React.FC = () => {
          transition={{ duration: 0.6 }}
          className="bg-brand-blue text-white pt-20 pb-24 text-center px-4"
       >
-         <h1 className="text-3xl md:text-5xl font-bold mb-6 font-serif">
-             All the software you need to <br/> run your business
+         <h1 className="text-4xl md:text-6xl font-display font-black mb-6 leading-none tracking-tight">
+             All the software you need to <br className="hidden md:block"/> run your business
          </h1>
          <div className="max-w-2xl mx-auto relative">
              <input 

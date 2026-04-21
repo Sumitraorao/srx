@@ -34,31 +34,38 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6"
+              className="text-5xl sm:text-6xl lg:text-7xl font-display font-black text-gray-900 leading-[1.05] mb-8 tracking-tighter"
             >
               Your life's work, <br/>
-              <span className="text-gray-900">powered by our life's work</span>
+              <span className="text-brand-red">powered by ours.</span>
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-lg text-gray-600 mb-8 max-w-2xl leading-relaxed"
+              className="text-xl text-gray-500 mb-10 max-w-2xl leading-relaxed font-medium"
             >
-              A unique and powerful software suite to transform the way you work. 
-              Designed for businesses of all sizes, built by a company that values your privacy.
+              A powerful software suite designed to transform how your business operates. 
+              Integrated, secure, and built with your privacy as a priority.
             </motion.p>
             <motion.div
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: 0.5 }}
+               className="flex flex-wrap gap-4 items-center"
             >
               <Link 
                 to={isLoggedIn ? "/dashboard" : "/register"} 
-                className="inline-block bg-brand-red hover:bg-brand-darkRed text-white text-lg font-bold py-4 px-8 rounded shadow-lg transition-transform hover:-translate-y-1"
+                className="inline-flex items-center bg-brand-dark hover:bg-brand-red text-white text-lg font-bold py-4 px-10 rounded-full shadow-2xl transition-all hover:-translate-y-1 active:scale-95"
               >
-                {isLoggedIn ? "GO TO DASHBOARD" : "GET STARTED FOR FREE"}
+                {isLoggedIn ? "OPEN DASHBOARD" : "START FOR FREE"}
+                <ArrowRight className="ml-2" size={20} />
               </Link>
+              {!isLoggedIn && (
+                  <Link to="/products" className="text-gray-600 font-bold hover:text-brand-red transition-colors px-6 flex items-center group">
+                      Explore Apps <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform"/>
+                  </Link>
+              )}
             </motion.div>
             
             <motion.div 

@@ -99,7 +99,7 @@ const Customers: React.FC = () => {
            transition={{ duration: 0.6 }}
         >
           <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-yellow-500 mx-auto mb-8"></div>
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">
+          <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 font-display tracking-tight">
              Trusted by over <span className="text-brand-red">{count} Million Users</span> globally
           </h1>
           <p className="text-gray-500 text-sm tracking-widest uppercase">The world's leading companies trust SRXHUB to run their different business operations.</p>
@@ -211,7 +211,7 @@ const Customers: React.FC = () => {
                                   
                                   <div className="p-6 flex flex-col flex-grow relative">
                                       <div className="mb-4">
-                                          <span className="font-bold text-xl font-serif text-gray-800 uppercase tracking-widest">{story.logoText}</span>
+                                          <span className="font-black text-xl font-display text-gray-900 uppercase tracking-tighter">{story.logoText}</span>
                                       </div>
                                       
                                       <p className="text-gray-600 text-sm mb-6 leading-relaxed flex-grow">

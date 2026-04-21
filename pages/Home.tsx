@@ -87,7 +87,7 @@ const Home: React.FC = () => {
                  viewport={{ once: true }}
                  transition={{ duration: 0.8 }}
               >
-                  <h2 className="text-4xl md:text-6xl font-bold font-serif mb-4">SRXHUB <br/> CONNECT 2025</h2>
+                  <h2 className="text-4xl md:text-6xl font-black font-display mb-4 tracking-tighter leading-[0.9]">SRXHUB <br/> CONNECT 2025</h2>
                   <Link to="/contact" className="inline-block mt-4 border-2 border-white px-8 py-3 font-bold hover:bg-white hover:text-black transition-all hover:scale-105">
                       Register Now
                   </Link>

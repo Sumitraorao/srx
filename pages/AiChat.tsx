@@ -466,7 +466,7 @@ const AiChat: React.FC = () => {
         <div className="p-6 flex items-center justify-between">
              <Link to="/" className="flex items-center space-x-3 text-gray-900 font-bold text-xl hover:text-indigo-600 transition-colors group">
                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
-                    <span className="text-white font-serif font-bold tracking-tight">SRX</span>
+                    <span className="text-white font-display font-black tracking-tight">SRX</span>
                  </div>
                  <span className="tracking-tight">SrxAI</span>
              </Link>
@@ -558,7 +558,7 @@ const AiChat: React.FC = () => {
                        {/* Center Orb Logo */}
                        <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center mb-6 md:mb-8 shadow-[0_20px_50px_-12px_rgba(79,70,229,0.3)] border-4 border-white relative group cursor-pointer">
                            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 opacity-10 animate-pulse"></div>
-                           <span className="text-3xl md:text-4xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 group-hover:scale-110 transition-transform">
+                           <span className="text-3xl md:text-4xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 group-hover:scale-110 transition-transform">
                                SRX
                            </span>
                        </div>

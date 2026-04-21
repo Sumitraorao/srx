@@ -45,10 +45,10 @@ const Footer: React.FC = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto px-4 text-center relative z-10"
          >
-            <h2 className="text-4xl md:text-6xl font-serif font-bold mb-6 text-white tracking-tight">
+            <h2 className="text-4xl md:text-6xl font-display font-black mb-6 text-white tracking-tighter">
                 {user ? "Ready to dominate your workflow?" : "Ready to do your best work?"}
             </h2>
-            <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-light">
+            <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-medium">
                 {user ? "Access your complete suite of powerful apps." : "Join millions of businesses running on SRXHUB."}
             </p>
             <button 

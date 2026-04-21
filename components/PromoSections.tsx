@@ -48,7 +48,7 @@ export const SrxOneSection: React.FC = () => {
                     Open to Opportunities
                 </motion.div>
 
-                <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-bold font-serif mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-indigo-200">
+                <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-black font-display mb-2 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-indigo-200 leading-[0.9]">
                     Sumit Rao
                 </motion.h1>
                 <motion.h2 variants={fadeInUp} className="text-xl md:text-2xl text-blue-200 font-light mb-6">
@@ -298,7 +298,7 @@ export const ValuesSection: React.FC = () => {
                    initial={{ opacity: 0, y: 20 }}
                    whileInView={{ opacity: 1, y: 0 }}
                    viewport={{ once: true }}
-                   className="text-3xl md:text-4xl font-serif text-center mb-16 text-gray-900"
+                   className="text-4xl md:text-5xl font-black font-display text-center mb-16 text-gray-900 tracking-tighter leading-tight"
                 >
                    The core values and<br/>principles that drive us
                 </motion.h2>
