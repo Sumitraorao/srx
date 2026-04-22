@@ -11,6 +11,11 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Allow the test connection doc to be read for connectivity validation
+    match /test/connection {
+      allow read: if true;
+    }
+
     match /service_requests/{requestId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
